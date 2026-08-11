@@ -1,32 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Installation</title>
-</head>
+@extends('installer::installer.layout')
 
-<body>
+@section('content')
 
-<div style="max-width: 700px; margin: 80px auto;">
-
+<div>
     <h1>Welcome</h1>
 
     <p>
-        Welcome to the installation wizard.
+        Welcome to the application installation wizard.
     </p>
 
-    <p>
-        This wizard will guide you through the installation
-        of your application.
-    </p>
-
-    <a href="#">
-        Continue
+    <a href="{{ route('installer.requirements') }}">
+        Start Installation
     </a>
-
 </div>
 
-</body>
-</html>
+@endsection

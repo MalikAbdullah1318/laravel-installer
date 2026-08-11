@@ -2,10 +2,9 @@
 
 namespace MalikAbdullah1318\LaravelInstaller;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use MalikAbdullah1318\LaravelInstaller\Installer;
-use MalikAbdullah1318\LaravelInstaller\Requirements\ComposerRequirements;
-use MalikAbdullah1318\LaravelInstaller\Requirements\RequirementsChecker;
+use MalikAbdullah1318\LaravelInstaller\Http\Middleware\InstallerNotInstalled;
 
 class InstallerServiceProvider extends ServiceProvider
 {
@@ -18,16 +17,7 @@ class InstallerServiceProvider extends ServiceProvider
 
         $this->app->singleton(
             Installer::class,
-            function () {
-                return new Installer();
-            }
-        );
-        $this->app->singleton(
-            RequirementsChecker::class,
-            function () {
-                return (new RequirementsChecker())
-                    ->add(new ComposerRequirements());
-            }
+            fn () => new Installer()
         );
     }
 
@@ -38,13 +28,18 @@ class InstallerServiceProvider extends ServiceProvider
                 config_path('installer.php'),
         ], 'installer-config');
 
-        $this->loadRoutesFrom(
-            __DIR__ . '/../routes/web.php'
-        );
-
         $this->loadViewsFrom(
             __DIR__ . '/../resources/views',
             'installer'
+        );
+
+        Route::aliasMiddleware(
+            'installer.not.installed',
+            InstallerNotInstalled::class
+        );
+
+        $this->loadRoutesFrom(
+            __DIR__ . '/../routes/installer.php'
         );
     }
 }
