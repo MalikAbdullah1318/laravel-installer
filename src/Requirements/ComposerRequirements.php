@@ -2,6 +2,7 @@
 
 namespace MalikAbdullah1318\LaravelInstaller\Requirements;
 
+use Composer\Semver\Semver;
 use RuntimeException;
 
 class ComposerRequirements implements Requirement
@@ -54,19 +55,22 @@ class ComposerRequirements implements Requirement
         return $results;
     }
 
-    protected function checkPhp(string $constraint): RequirementResult
-    {
+    protected function checkPhp(
+        string $constraint
+    ): RequirementResult {
         $current = PHP_VERSION;
+
+        $passed = Semver::satisfies(
+            $current,
+            $constraint
+        );
 
         return new RequirementResult(
             name: 'PHP',
             type: 'php',
             required: $constraint,
             current: $current,
-            passed: $this->versionSatisfies(
-                $current,
-                $constraint
-            ),
+            passed: $passed,
         );
     }
 
@@ -84,49 +88,6 @@ class ComposerRequirements implements Requirement
                 ? phpversion($extension) ?: 'Enabled'
                 : 'Not installed',
             passed: $installed,
-        );
-    }
-
-    protected function versionSatisfies(
-        string $version,
-        string $constraint
-    ): bool {
-        if (str_starts_with($constraint, '>=')) {
-            return version_compare(
-                $version,
-                trim(substr($constraint, 2)),
-                '>='
-            );
-        }
-
-        if (str_starts_with($constraint, '>')) {
-            return version_compare(
-                $version,
-                trim(substr($constraint, 1)),
-                '>'
-            );
-        }
-
-        if (str_starts_with($constraint, '<=')) {
-            return version_compare(
-                $version,
-                trim(substr($constraint, 2)),
-                '<='
-            );
-        }
-
-        if (str_starts_with($constraint, '<')) {
-            return version_compare(
-                $version,
-                trim(substr($constraint, 1)),
-                '<'
-            );
-        }
-
-        return version_compare(
-            $version,
-            trim($constraint),
-            '='
         );
     }
 }
