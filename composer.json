@@ -1,0 +1,25 @@
+{
+    "name": "malikabdullah1318/laravel-installer",
+    "description": "Universal installer and updater for Laravel applications.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "MalikAbdullah1318\\LaravelInstaller\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MalikAbdullah1318\\LaravelInstaller\\InstallerServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^8.2|^8.3|^8.4",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0"
+    }
+}
