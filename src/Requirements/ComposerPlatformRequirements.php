@@ -7,72 +7,122 @@ use RuntimeException;
 class ComposerPlatformRequirements
 {
     public function check(): array
-    {
-        $composerPath = base_path('composer.lock');
+{
+    $composerPath = base_path('composer.lock');
 
-        if (! file_exists($composerPath)) {
-            return [];
+    if (! file_exists($composerPath)) {
+        return [];
+    }
+
+    $contents = file_get_contents($composerPath);
+
+    $lock = json_decode(
+        $contents,
+        true
+    );
+
+    if (! is_array($lock)) {
+        throw new RuntimeException(
+            'composer.lock contains invalid JSON.'
+        );
+    }
+
+    $results = [];
+
+    $packages = array_merge(
+        $lock['packages'] ?? [],
+        $lock['packages-dev'] ?? []
+    );
+
+    $requirements = [];
+
+    foreach ($packages as $package) {
+
+        foreach (
+            $package['require'] ?? []
+            as $name => $constraint
+        ) {
+
+            if (
+                $name === 'php' ||
+                str_starts_with($name, 'ext-')
+            ) {
+                $requirements[$name][] = $constraint;
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PHP
+    |--------------------------------------------------------------------------
+    */
+
+    if (isset($requirements['php'])) {
+
+        $phpRequirements = $requirements['php'];
+
+        $required = $this->strongestPhpRequirement(
+            $phpRequirements
+        );
+
+        $results[] = $this->checkPhp(
+            $required
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Extensions
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($requirements as $name => $constraints) {
+
+        if ($name === 'php') {
+            continue;
         }
 
-        $contents = file_get_contents($composerPath);
+        $extension = substr(
+            $name,
+            4
+        );
 
-        $lock = json_decode(
-            $contents,
+        $results[] = $this->checkExtension(
+            $extension,
+            '*'
+        );
+    }
+
+    return $results;
+}
+protected function strongestPhpRequirement(
+    array $requirements
+): string {
+    /*
+    |--------------------------------------------------------------------------
+    | For now, use the application's direct PHP requirement
+    |--------------------------------------------------------------------------
+    */
+
+    $composerPath = base_path('composer.json');
+
+    if (file_exists($composerPath)) {
+
+        $composer = json_decode(
+            file_get_contents($composerPath),
             true
         );
 
-        if (! is_array($lock)) {
-            throw new RuntimeException(
-                'composer.lock contains invalid JSON.'
-            );
+        if (
+            isset($composer['require']['php'])
+        ) {
+            return $composer['require']['php'];
         }
-
-        $results = [];
-
-        $packages = array_merge(
-            $lock['packages'] ?? [],
-            $lock['packages-dev'] ?? []
-        );
-
-        $requirements = [];
-
-        foreach ($packages as $package) {
-            foreach (
-                $package['require'] ?? []
-                as $name => $constraint
-            ) {
-                if (
-                    $name === 'php' ||
-                    str_starts_with($name, 'ext-')
-                ) {
-                    $requirements[$name] = $constraint;
-                }
-            }
-        }
-
-        foreach ($requirements as $name => $constraint) {
-
-            if ($name === 'php') {
-                $results[] = $this->checkPhp(
-                    $constraint
-                );
-
-                continue;
-            }
-
-            $extension = substr(
-                $name,
-                4
-            );
-
-            $results[] = $this->checkExtension(
-                $extension,
-                $constraint
-            );
-        }
-
-        return $results;
     }
+
+    return $requirements[0] ?? '*';
+}
 
     protected function checkPhp(
         string $constraint
