@@ -4,6 +4,8 @@ namespace MalikAbdullah1318\LaravelInstaller;
 
 use Illuminate\Support\ServiceProvider;
 use MalikAbdullah1318\LaravelInstaller\Installer;
+use MalikAbdullah1318\LaravelInstaller\Requirements\ComposerRequirements;
+use MalikAbdullah1318\LaravelInstaller\Requirements\RequirementsChecker;
 
 class InstallerServiceProvider extends ServiceProvider
 {
@@ -18,6 +20,13 @@ class InstallerServiceProvider extends ServiceProvider
             Installer::class,
             function () {
                 return new Installer();
+            }
+        );
+        $this->app->singleton(
+            RequirementsChecker::class,
+            function () {
+                return (new RequirementsChecker())
+                    ->add(new ComposerRequirements());
             }
         );
     }
