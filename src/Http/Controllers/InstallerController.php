@@ -5,6 +5,9 @@ namespace MalikAbdullah1318\LaravelInstaller\Http\Controllers;
 use Illuminate\Routing\Controller;
 use MalikAbdullah1318\LaravelInstaller\Installer;
 use MalikAbdullah1318\LaravelInstaller\Requirements\RequirementsChecker;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use MalikAbdullah1318\LaravelInstaller\Environment\EnvironmentManager;
 
 class InstallerController extends Controller
 {
@@ -174,7 +177,7 @@ class InstallerController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Write database configuration
+            | Configure database
             |--------------------------------------------------------------------------
             */
 
@@ -190,7 +193,7 @@ class InstallerController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Generate application key
+            | Generate APP_KEY
             |--------------------------------------------------------------------------
             */
 
@@ -201,7 +204,7 @@ class InstallerController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Clear cached configuration
+            | Clear configuration cache
             |--------------------------------------------------------------------------
             */
 
@@ -212,7 +215,7 @@ class InstallerController extends Controller
                 ->route('installer.database')
                 ->with(
                     'environment_success',
-                    '.env has been created and the application configuration has been saved.'
+                    'Environment configuration was created successfully.'
                 );
 
         } catch (\Throwable $e) {

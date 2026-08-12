@@ -52,16 +52,24 @@ class EnvironmentManager
         $pattern = '/^' . preg_quote($key, '/') . '=.*$/m';
 
         if (preg_match($pattern, $contents)) {
+
             $contents = preg_replace(
                 $pattern,
                 $key . '=' . $value,
                 $contents
             );
+
         } else {
+
             $contents .= PHP_EOL . $key . '=' . $value;
         }
 
-        if (file_put_contents($envPath, $contents) === false) {
+        if (
+            file_put_contents(
+                $envPath,
+                $contents
+            ) === false
+        ) {
             throw new RuntimeException(
                 'Unable to write to the .env file.'
             );
@@ -71,7 +79,11 @@ class EnvironmentManager
     public function setMany(array $values): void
     {
         foreach ($values as $key => $value) {
-            $this->set($key, (string) $value);
+
+            $this->set(
+                $key,
+                (string) $value
+            );
         }
     }
 

@@ -145,47 +145,45 @@
         <hr>
 
         <form
-            method="POST"
-            action="{{ route('installer.database.configure') }}"
-        >
+    method="POST"
+    action="{{ route('installer.database.configure') }}"
+>
+    @csrf
 
-            @csrf
+    <input
+        type="hidden"
+        name="database_host"
+        value="{{ old('database_host') }}"
+    >
 
-            <input
-                type="hidden"
-                name="database_host"
-                value="{{ old('database_host') }}"
-            >
+    <input
+        type="hidden"
+        name="database_port"
+        value="{{ old('database_port') }}"
+    >
 
-            <input
-                type="hidden"
-                name="database_port"
-                value="{{ old('database_port') }}"
-            >
+    <input
+        type="hidden"
+        name="database_name"
+        value="{{ old('database_name') }}"
+    >
 
-            <input
-                type="hidden"
-                name="database_name"
-                value="{{ old('database_name') }}"
-            >
+    <input
+        type="hidden"
+        name="database_username"
+        value="{{ old('database_username') }}"
+    >
 
-            <input
-                type="hidden"
-                name="database_username"
-                value="{{ old('database_username') }}"
-            >
+    <input
+        type="hidden"
+        name="database_password"
+        value="{{ old('database_password') }}"
+    >
 
-            <input
-                type="hidden"
-                name="database_password"
-                value="{{ old('database_password') }}"
-            >
-
-            <button type="submit">
-                Continue
-            </button>
-
-        </form>
+    <button type="submit">
+        Continue
+    </button>
+</form>
 
     @endif
 
