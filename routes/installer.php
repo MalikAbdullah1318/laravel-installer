@@ -18,4 +18,25 @@ Route::middleware('installer.not.installed')
             'requirements',
         ])->name('requirements');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Database
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/database', [
+            InstallerController::class,
+            'database',
+        ])->name('database');
+
+        Route::post('/database/test', [
+            InstallerController::class,
+            'testDatabase',
+        ])->name('database.test');
+
+        Route::post('/database/configure', [
+            InstallerController::class,
+            'configureDatabase',
+        ])->name('database.configure');
+
     });

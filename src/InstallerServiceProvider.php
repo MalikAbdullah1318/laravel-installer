@@ -5,6 +5,7 @@ namespace MalikAbdullah1318\LaravelInstaller;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use MalikAbdullah1318\LaravelInstaller\Http\Middleware\InstallerNotInstalled;
+use MalikAbdullah1318\LaravelInstaller\Environment\EnvironmentManager;
 
 class InstallerServiceProvider extends ServiceProvider
 {
@@ -18,6 +19,11 @@ class InstallerServiceProvider extends ServiceProvider
         $this->app->singleton(
             Installer::class,
             fn () => new Installer()
+        );
+
+        $this->app->singleton(
+            EnvironmentManager::class,
+            fn () => new EnvironmentManager()
         );
     }
 
