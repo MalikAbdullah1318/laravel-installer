@@ -140,7 +140,7 @@
         @if($requirementsPassed)
 
             <a
-                href="#"
+                href="{{ route('installer.database') }}"
                 class="btn btn-primary"
             >
                 Continue
