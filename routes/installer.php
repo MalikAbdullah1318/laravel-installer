@@ -39,4 +39,20 @@ Route::middleware('installer.not.installed')
             'configureDatabase',
         ])->name('database.configure');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Migrations
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/migrations', [
+            InstallerController::class,
+            'migrations',
+        ])->name('migrations');
+
+        Route::post('/migrations/run', [
+            InstallerController::class,
+            'runMigrations',
+        ])->name('migrations.run');
+
     });

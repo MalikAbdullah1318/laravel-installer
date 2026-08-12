@@ -211,12 +211,7 @@ class InstallerController extends Controller
             Artisan::call('config:clear');
 
 
-            return redirect()
-                ->route('installer.database')
-                ->with(
-                    'environment_success',
-                    'Environment configuration was created successfully.'
-                );
+            return redirect()->route('installer.migrations');
 
         } catch (\Throwable $e) {
 
@@ -226,6 +221,43 @@ class InstallerController extends Controller
                     'environment_error',
                     $e->getMessage()
                 );
+        }
+    }
+
+    public function migrations()
+    {
+        return view(
+            'installer::installer.migrations'
+        );
+    }
+
+    public function runMigrations()
+    {
+        try {
+
+            Artisan::call('migrate', [
+                '--force' => true,
+            ]);
+
+            $output = Artisan::output();
+
+            return view(
+                'installer::installer.migrations',
+                [
+                    'success' => true,
+                    'output' => $output,
+                ]
+            );
+
+        } catch (\Throwable $e) {
+
+            return view(
+                'installer::installer.migrations',
+                [
+                    'success' => false,
+                    'output' => $e->getMessage(),
+                ]
+            );
         }
     }
 }
