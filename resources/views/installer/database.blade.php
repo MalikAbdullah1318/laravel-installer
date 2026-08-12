@@ -1,276 +1,244 @@
-@extends('installer::installer.layout')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
 
-@section('title', 'Installation - Database Configuration')
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-@section('content')
+    <title>Database Configuration</title>
 
-    <div class="installer-header">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 40px;
+        }
 
-        <h1 class="installer-title">
-            Database Configuration
-        </h1>
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+        }
 
-        <p class="installer-description">
-            Enter the database information for your application.
-        </p>
+        h1 {
+            margin-top: 0;
+        }
 
-    </div>
+        .form-group {
+            margin-bottom: 20px;
+        }
 
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
 
-    <div class="installer-body">
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
 
-        {{-- Progress --}}
+        button {
+            padding: 12px 20px;
+            cursor: pointer;
+        }
 
-        <div class="step-indicator">
+        .success {
+            padding: 12px;
+            background: #d1fae5;
+            margin-bottom: 20px;
+        }
 
-            <div class="step active"></div>
-            <div class="step active"></div>
-            <div class="step"></div>
-            <div class="step"></div>
+        .error {
+            padding: 12px;
+            background: #fee2e2;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
 
+<body>
+
+<div class="container">
+
+    <h1>Database Configuration</h1>
+
+    <p>
+        Enter your database credentials below.
+    </p>
+
+    @if(session('database_success'))
+        <div class="success">
+            {{ session('database_success') }}
         </div>
+    @endif
 
+    @if(session('database_error'))
+        <div class="error">
+            {{ session('database_error') }}
+        </div>
+    @endif
 
-        {{-- Database test success --}}
+    @if(session('environment_success'))
+        <div class="success">
+            {{ session('environment_success') }}
+        </div>
+    @endif
 
-        @if(session('database_success'))
+    @if(session('environment_error'))
+        <div class="error">
+            {{ session('environment_error') }}
+        </div>
+    @endif
 
-            <div class="all-passed">
-                {{ session('database_success') }}
-            </div>
+    {{-- Test Database --}}
 
-        @endif
+    <h2>Test Database Connection</h2>
 
+    <form method="POST" action="{{ route('installer.database.test') }}">
 
-        {{-- Database test error --}}
+        @csrf
 
-        @if(session('database_error'))
+        <div class="form-group">
+            <label>Database Host</label>
 
-            <div class="has-failed">
-                {{ session('database_error') }}
-            </div>
-
-        @endif
-
-
-        {{-- Environment success --}}
-
-        @if(session('environment_success'))
-
-            <div class="all-passed">
-                {{ session('environment_success') }}
-            </div>
-
-        @endif
-
-
-        {{-- Environment error --}}
-
-        @if(session('environment_error'))
-
-            <div class="has-failed">
-                {{ session('environment_error') }}
-            </div>
-
-        @endif
-
-
-        {{-- Validation errors --}}
-
-        @if($errors->any())
-
-            <div class="has-failed">
-
-                @foreach($errors->all() as $error)
-
-                    <div>
-                        {{ $error }}
-                    </div>
-
-                @endforeach
-
-            </div>
-
-        @endif
-
-
-        {{-- Database form --}}
-
-        <div class="requirements-section">
-
-            <h2 class="section-title">
-                Database
-            </h2>
-
-
-            <form
-                method="POST"
-                action="{{ route('installer.database.test') }}"
+            <input
+                type="text"
+                name="database_host"
+                value="{{ old('database_host', '127.0.0.1') }}"
+                required
             >
-
-                @csrf
-
-
-                <div class="form-group">
-
-                    <label>
-                        Database Host
-                    </label>
-
-                    <input
-                        type="text"
-                        name="database_host"
-                        value="{{ old('database_host', '127.0.0.1') }}"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Database Port
-                    </label>
-
-                    <input
-                        type="number"
-                        name="database_port"
-                        value="{{ old('database_port', '3306') }}"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Database Name
-                    </label>
-
-                    <input
-                        type="text"
-                        name="database_name"
-                        value="{{ old('database_name') }}"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Database Username
-                    </label>
-
-                    <input
-                        type="text"
-                        name="database_username"
-                        value="{{ old('database_username') }}"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Database Password
-                    </label>
-
-                    <input
-                        type="password"
-                        name="database_password"
-                        value="{{ old('database_password') }}"
-                    >
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Test Database Connection
-                </button>
-
-            </form>
-
-
-            {{-- Continue after successful connection --}}
-
-            @if(session('database_success'))
-
-                <hr>
-
-
-                <form
-                    method="POST"
-                    action="{{ route('installer.database.configure') }}"
-                >
-
-                    @csrf
-
-
-                    <input
-                        type="hidden"
-                        name="database_host"
-                        value="{{ old('database_host') }}"
-                    >
-
-                    <input
-                        type="hidden"
-                        name="database_port"
-                        value="{{ old('database_port') }}"
-                    >
-
-                    <input
-                        type="hidden"
-                        name="database_name"
-                        value="{{ old('database_name') }}"
-                    >
-
-                    <input
-                        type="hidden"
-                        name="database_username"
-                        value="{{ old('database_username') }}"
-                    >
-
-                    <input
-                        type="hidden"
-                        name="database_password"
-                        value="{{ old('database_password') }}"
-                    >
-
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        Continue
-                    </button>
-
-                </form>
-
-            @endif
-
         </div>
 
-    </div>
+        <div class="form-group">
+            <label>Database Port</label>
+
+            <input
+                type="number"
+                name="database_port"
+                value="{{ old('database_port', 3306) }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Database Name</label>
+
+            <input
+                type="text"
+                name="database_name"
+                value="{{ old('database_name') }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Database Username</label>
+
+            <input
+                type="text"
+                name="database_username"
+                value="{{ old('database_username') }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Database Password</label>
+
+            <input
+                type="password"
+                name="database_password"
+                value="{{ old('database_password') }}"
+            >
+        </div>
+
+        <button type="submit">
+            Test Connection
+        </button>
+
+    </form>
 
 
-    <div class="installer-footer">
+    <hr style="margin: 30px 0;">
 
-        <a
-            href="{{ route('installer.requirements') }}"
-            class="btn"
-        >
-            Back
-        </a>
 
-    </div>
+    {{-- Configure Database --}}
 
-@endsection
+    <h2>Install Application</h2>
+
+    <form method="POST" action="{{ route('installer.database.configure') }}">
+
+        @csrf
+
+        <div class="form-group">
+            <label>Database Host</label>
+
+            <input
+                type="text"
+                name="database_host"
+                value="{{ old('database_host', '127.0.0.1') }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Database Port</label>
+
+            <input
+                type="number"
+                name="database_port"
+                value="{{ old('database_port', 3306) }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Database Name</label>
+
+            <input
+                type="text"
+                name="database_name"
+                value="{{ old('database_name') }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Database Username</label>
+
+            <input
+                type="text"
+                name="database_username"
+                value="{{ old('database_username') }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Database Password</label>
+
+            <input
+                type="password"
+                name="database_password"
+            >
+        </div>
+
+        <button type="submit">
+            Install Application
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
