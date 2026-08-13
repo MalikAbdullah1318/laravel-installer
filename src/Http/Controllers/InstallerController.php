@@ -99,11 +99,10 @@ class InstallerController extends Controller
                 'max:255',
             ],
         ]);
-        dd($validated);
 
         try {
 
-            new \PDO(
+            $check = new \PDO(
                 'mysql:host=' .
                 $validated['database_host'] .
                 ';port=' .
@@ -118,6 +117,8 @@ class InstallerController extends Controller
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 ]
             );
+
+            dd($check);
 
             return redirect()
                 ->route('installer.database')
