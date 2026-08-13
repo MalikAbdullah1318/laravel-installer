@@ -185,7 +185,7 @@ class InstallerController extends Controller
                     $validated
                 );
 
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
 
             Log::error('Database connection failed', [
                 'message' => $e->getMessage(),
