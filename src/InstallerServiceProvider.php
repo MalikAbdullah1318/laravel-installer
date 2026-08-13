@@ -2,11 +2,11 @@
 
 namespace MalikAbdullah1318\LaravelInstaller;
 
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use MalikAbdullah1318\LaravelInstaller\Http\Middleware\InstallerNotInstalled;
 use MalikAbdullah1318\LaravelInstaller\Environment\EnvironmentManager;
+use MalikAbdullah1318\LaravelInstaller\InstallerState;
 
 class InstallerServiceProvider extends ServiceProvider
 {
@@ -26,36 +26,15 @@ class InstallerServiceProvider extends ServiceProvider
             EnvironmentManager::class,
             fn () => new EnvironmentManager()
         );
+
+        $this->app->singleton(
+            InstallerState::class,
+            fn () => new InstallerState()
+        );
     }
 
     public function boot(): void
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Installer Session
-        |--------------------------------------------------------------------------
-        */
-
-        Config::set('session.driver', 'file');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Temporary Application Key
-        |--------------------------------------------------------------------------
-        |
-        | The installer runs before the application's .env exists.
-        | Laravel's cookie/session system still requires an encryption key.
-        |
-        */
-
-        if (! config('app.key')) {
-            Config::set(
-                'app.key',
-                'base64:' . base64_encode(
-                    random_bytes(32)
-                )
-            );
-        }
 
         $this->publishes([
             __DIR__ . '/../config/installer.php' =>

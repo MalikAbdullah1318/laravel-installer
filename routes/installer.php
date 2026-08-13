@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use MalikAbdullah1318\LaravelInstaller\Http\Controllers\InstallerController;
 
-Route::middleware(['web', 'installer.not.installed'])
+Route::middleware('installer.not.installed')
     ->prefix('install')
     ->name('installer.')
     ->group(function () {

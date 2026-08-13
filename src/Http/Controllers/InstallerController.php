@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use MalikAbdullah1318\LaravelInstaller\Environment\EnvironmentManager;
 use Illuminate\Support\Facades\Log;
+use MalikAbdullah1318\LaravelInstaller\InstallerState;
 
 class InstallerController extends Controller
 {
@@ -50,15 +51,17 @@ class InstallerController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function database()
-    {
-        return view(
-        'installer::installer.database',
-            [
-                'databaseCredentials' => session('database_credentials', []),
-            ]
-        );
-    }
+    public function database(InstallerState $state)
+{
+    $installerState = $state->get();
+
+    return view('installer::database', [
+        'databaseTested' => $installerState['database_tested'] ?? false,
+        'databaseSuccess' => $installerState['database_success'] ?? null,
+        'databaseError' => $installerState['database_error'] ?? null,
+        'databaseCredentials' => $installerState['database_credentials'] ?? [],
+    ]);
+}
 
 
     /*
@@ -67,8 +70,10 @@ class InstallerController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function testDatabase(Request $request)
-{
+    public function testDatabase(
+    Request $request,
+    InstallerState $state
+) {
     Log::info('Database test method started');
 
     $validated = $request->validate([
@@ -165,22 +170,26 @@ class InstallerController extends Controller
             Log::info('Database created successfully');
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Save Installer State
+        |--------------------------------------------------------------------------
+        */
+
+        $state->put([
+            'database_tested' => true,
+
+            'database_success' =>
+                'Database connection was successful and the database is ready.',
+
+            'database_error' => null,
+
+            'database_credentials' => $validated,
+        ]);
+
         Log::info('Database test completed successfully');
 
-        return redirect()
-            ->route('installer.database')
-            ->with(
-                'database_success',
-                'Database connection was successful and the database is ready.'
-            )
-            ->with(
-                'database_tested',
-                true
-            )
-            ->with(
-                'database_credentials',
-                $validated
-            );
+        return redirect()->route('installer.database');
 
     } catch (\Throwable $e) {
 
@@ -192,20 +201,24 @@ class InstallerController extends Controller
             'trace' => $e->getTraceAsString(),
         ]);
 
-        return redirect()
-            ->route('installer.database')
-            ->with(
-                'database_error',
-                'Unable to connect to MySQL or create the database. Please check your database credentials and permissions.'
-            )
-            ->with(
-                'database_tested',
-                false
-            )
-            ->with(
-                'database_credentials',
-                $validated
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | Save Error State
+        |--------------------------------------------------------------------------
+        */
+
+        $state->put([
+            'database_tested' => false,
+
+            'database_success' => null,
+
+            'database_error' =>
+                'Unable to connect to MySQL or create the database. Please check your database credentials and permissions.',
+
+            'database_credentials' => $validated,
+        ]);
+
+        return redirect()->route('installer.database');
     }
 }
 
