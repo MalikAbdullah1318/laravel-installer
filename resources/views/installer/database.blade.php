@@ -168,75 +168,79 @@
     </form>
 
 
-    <hr style="margin: 30px 0;">
-
-
-    {{-- Configure Database --}}
-
-    <h2>Install Application</h2>
-
-    <form method="POST" action="{{ route('installer.database.configure') }}">
-
-        @csrf
-
-        <div class="form-group">
-            <label>Database Host</label>
-
-            <input
-                type="text"
-                name="database_host"
-                value="{{ old('database_host', '127.0.0.1') }}"
-                required
-            >
-        </div>
-
-        <div class="form-group">
-            <label>Database Port</label>
-
-            <input
-                type="number"
-                name="database_port"
-                value="{{ old('database_port', 3306) }}"
-                required
-            >
-        </div>
-
-        <div class="form-group">
-            <label>Database Name</label>
-
-            <input
-                type="text"
-                name="database_name"
-                value="{{ old('database_name') }}"
-                required
-            >
-        </div>
-
-        <div class="form-group">
-            <label>Database Username</label>
-
-            <input
-                type="text"
-                name="database_username"
-                value="{{ old('database_username') }}"
-                required
-            >
-        </div>
-
-        <div class="form-group">
-            <label>Database Password</label>
-
-            <input
-                type="password"
-                name="database_password"
-            >
-        </div>
-
-        <button type="submit">
-            Install Application
-        </button>
-
-    </form>
+    
+    
+    
+    @if(session('database_success'))
+    
+        {{-- Configure Database --}}
+        <hr style="margin: 30px 0;">
+        
+        <h2>Install Application</h2>
+    
+        <form method="POST" action="{{ route('installer.database.configure') }}">
+    
+            @csrf
+    
+            <div class="form-group">
+                <label>Database Host</label>
+    
+                <input
+                    type="text"
+                    name="database_host"
+                    value="{{ old('database_host', '127.0.0.1') }}"
+                    required
+                >
+            </div>
+    
+            <div class="form-group">
+                <label>Database Port</label>
+    
+                <input
+                    type="number"
+                    name="database_port"
+                    value="{{ old('database_port', 3306) }}"
+                    required
+                >
+            </div>
+    
+            <div class="form-group">
+                <label>Database Name</label>
+    
+                <input
+                    type="text"
+                    name="database_name"
+                    value="{{ old('database_name') }}"
+                    required
+                >
+            </div>
+    
+            <div class="form-group">
+                <label>Database Username</label>
+    
+                <input
+                    type="text"
+                    name="database_username"
+                    value="{{ old('database_username') }}"
+                    required
+                >
+            </div>
+    
+            <div class="form-group">
+                <label>Database Password</label>
+    
+                <input
+                    type="password"
+                    name="database_password"
+                >
+            </div>
+    
+            <button type="submit">
+                Install Application
+            </button>
+    
+        </form>
+    @endif
 
 </div>
 
