@@ -238,70 +238,7 @@
     </form>
 
 
-    {{-- Continue after successful test --}}
-
-    @if(session('database_success'))
-
-        <div class="continue">
-
-            <strong>
-                Database connection verified.
-            </strong>
-
-            <p>
-                Your database connection is working correctly.
-                You can now continue with the installation.
-            </p>
-
-
-            <form
-                method="POST"
-                action="{{ route('installer.database.configure') }}"
-            >
-
-                @csrf
-
-
-                <input
-                    type="hidden"
-                    name="database_host"
-                    value="{{ old('database_host') }}"
-                >
-
-                <input
-                    type="hidden"
-                    name="database_port"
-                    value="{{ old('database_port') }}"
-                >
-
-                <input
-                    type="hidden"
-                    name="database_name"
-                    value="{{ old('database_name') }}"
-                >
-
-                <input
-                    type="hidden"
-                    name="database_username"
-                    value="{{ old('database_username') }}"
-                >
-
-                <input
-                    type="hidden"
-                    name="database_password"
-                    value="{{ old('database_password') }}"
-                >
-
-
-                <button type="submit">
-                    Continue Installation
-                </button>
-
-            </form>
-
-        </div>
-
-    @endif
+    
 
 </div>
 
