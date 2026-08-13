@@ -103,31 +103,91 @@ class InstallerController extends Controller
 
         try {
 
-            new \PDO(
+            /*
+            |--------------------------------------------------------------------------
+            | Connect to MySQL server WITHOUT selecting a database
+            |--------------------------------------------------------------------------
+            */
+
+            $pdo = new \PDO(
                 'mysql:host=' .
                 $validated['database_host'] .
                 ';port=' .
-                $validated['database_port'] .
-                ';dbname=' .
-                $validated['database_name'],
+                $validated['database_port'],
 
                 $validated['database_username'],
 
                 $validated['database_password'] ?? '',
+
                 [
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 ]
             );
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Check whether database exists
+            |--------------------------------------------------------------------------
+            */
+
+            $statement = $pdo->prepare(
+                'SELECT SCHEMA_NAME
+                FROM INFORMATION_SCHEMA.SCHEMATA
+                WHERE SCHEMA_NAME = ?'
+            );
+
+            $statement->execute([
+                $validated['database_name'],
+            ]);
+
+            $databaseExists = $statement->fetchColumn();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create database if it does not exist
+            |--------------------------------------------------------------------------
+            */
+
+            if (! $databaseExists) {
+
+                $databaseName = str_replace(
+                    '`',
+                    '``',
+                    $validated['database_name']
+                );
+
+                $pdo->exec(
+                    "CREATE DATABASE `{$databaseName}`"
+                );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Success
+            |--------------------------------------------------------------------------
+            */
+
             return redirect()
                 ->route('installer.database')
-                ->with('database_success', 'Database connection was successful.')
-                ->with('database_tested', true)
-                ->with('database_credentials', $validated);
+                ->with(
+                    'database_success',
+                    'Database connection was successful and the database is ready.'
+                )
+                ->with(
+                    'database_tested',
+                    true
+                )
+                ->with(
+                    'database_credentials',
+                    $validated
+                );
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
-            Log::error('Something went wrong', [
+            Log::error('Database connection failed', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -135,9 +195,18 @@ class InstallerController extends Controller
 
             return redirect()
                 ->route('installer.database')
-                ->with('database_error', 'Unable to connect to the database. Please check your credentials.')
-                ->with('database_tested', false)
-                ->with('database_credentials', $validated);
+                ->with(
+                    'database_error',
+                    'Unable to connect to MySQL or create the database. Please check your database credentials and permissions.'
+                )
+                ->with(
+                    'database_tested',
+                    false
+                )
+                ->with(
+                    'database_credentials',
+                    $validated
+                );
         }
     }
 
