@@ -75,28 +75,55 @@
         Enter your database credentials below.
     </p>
 
+    {{-- Success --}}
+
     @if(session('database_success'))
+
         <div class="success">
             {{ session('database_success') }}
         </div>
+
     @endif
 
+
+    {{-- Database Error --}}
+
     @if(session('database_error'))
+
         <div class="error">
             {{ session('database_error') }}
         </div>
+
     @endif
 
-    @if(session('environment_success'))
-        <div class="success">
-            {{ session('environment_success') }}
-        </div>
-    @endif
+
+    {{-- Environment Error --}}
 
     @if(session('environment_error'))
+
         <div class="error">
             {{ session('environment_error') }}
         </div>
+
+    @endif
+
+
+    {{-- Validation Errors --}}
+
+    @if($errors->any())
+
+        <div class="error">
+
+            @foreach($errors->all() as $error)
+
+                <div>
+                    {{ $error }}
+                </div>
+
+            @endforeach
+
+        </div>
+
     @endif
 
     {{-- Test Database --}}
