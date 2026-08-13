@@ -8,6 +8,7 @@ use MalikAbdullah1318\LaravelInstaller\Requirements\RequirementsChecker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use MalikAbdullah1318\LaravelInstaller\Environment\EnvironmentManager;
+use Illuminate\Support\Facades\Log;
 
 class InstallerController extends Controller
 {
@@ -102,7 +103,7 @@ class InstallerController extends Controller
 
         try {
 
-            $check = new \PDO(
+            new \PDO(
                 'mysql:host=' .
                 $validated['database_host'] .
                 ';port=' .
@@ -118,15 +119,19 @@ class InstallerController extends Controller
                 ]
             );
 
-            dd($check);
-
             return redirect()
                 ->route('installer.database')
                 ->with('database_success', 'Database connection was successful.')
                 ->with('database_tested', true)
                 ->with('database_credentials', $validated);
 
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
+
+            Log::error('Something went wrong', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
             return redirect()
                 ->route('installer.database')
