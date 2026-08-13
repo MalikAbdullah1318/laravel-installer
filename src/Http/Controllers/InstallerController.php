@@ -99,7 +99,7 @@ class InstallerController extends Controller
 
         try {
 
-            $connection = new \PDO(
+            new \PDO(
                 'mysql:host=' .
                 $validated['database_host'] .
                 ';port=' .
@@ -109,24 +109,25 @@ class InstallerController extends Controller
 
                 $validated['database_username'],
 
-                $validated['database_password'] ?? ''
+                $validated['database_password'] ?? '',
+                [
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                ]
             );
 
-            return back()
-                ->withInput()
-                ->with(
-                    'database_success',
-                    'Database connection was successful.'
-                );
+            return redirect()
+                ->route('installer.database')
+                ->with('database_success', 'Database connection was successful.')
+                ->with('database_tested', true)
+                ->with('database_credentials', $validated);
 
         } catch (\Throwable $e) {
 
-            return back()
-                ->withInput()
-                ->with(
-                    'database_error',
-                    'Unable to connect to the database. Please check your credentials.'
-                );
+            return redirect()
+                ->route('installer.database')
+                ->with('database_error', 'Unable to connect to the database. Please check your credentials.')
+                ->with('database_tested', false)
+                ->with('database_credentials', $validated);
         }
     }
 
