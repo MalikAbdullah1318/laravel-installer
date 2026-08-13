@@ -55,7 +55,7 @@ class InstallerController extends Controller
 {
     $installerState = $state->get();
 
-    return view('installer::database', [
+    return view('installer::installer.database', [
         'databaseTested' => $installerState['database_tested'] ?? false,
         'databaseSuccess' => $installerState['database_success'] ?? null,
         'databaseError' => $installerState['database_error'] ?? null,
