@@ -68,147 +68,146 @@ class InstallerController extends Controller
     */
 
     public function testDatabase(Request $request)
-    {
-        $validated = $request->validate([
-            'database_host' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+{
+    Log::info('Database test method started');
 
-            'database_port' => [
-                'required',
-                'integer',
-                'between:1,65535',
-            ],
+    $validated = $request->validate([
+        'database_host' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-            'database_name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+        'database_port' => [
+            'required',
+            'integer',
+            'between:1,65535',
+        ],
 
-            'database_username' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+        'database_name' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-            'database_password' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
+        'database_username' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'database_password' => [
+            'nullable',
+            'string',
+            'max:255',
+        ],
+    ]);
+
+    Log::info('Database validation passed', [
+        'host' => $validated['database_host'],
+        'port' => $validated['database_port'],
+        'database' => $validated['database_name'],
+        'username' => $validated['database_username'],
+    ]);
+
+    try {
+
+        Log::info('Attempting MySQL connection');
+
+        $pdo = new \PDO(
+            'mysql:host=' .
+            $validated['database_host'] .
+            ';port=' .
+            $validated['database_port'],
+
+            $validated['database_username'],
+
+            $validated['database_password'] ?? '',
+
+            [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            ]
+        );
+
+        Log::info('MySQL connection successful');
+
+        $statement = $pdo->prepare(
+            'SELECT SCHEMA_NAME
+             FROM INFORMATION_SCHEMA.SCHEMATA
+             WHERE SCHEMA_NAME = ?'
+        );
+
+        $statement->execute([
+            $validated['database_name'],
         ]);
 
-        try {
+        $databaseExists = $statement->fetchColumn();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Connect to MySQL server WITHOUT selecting a database
-            |--------------------------------------------------------------------------
-            */
+        Log::info('Database existence checked', [
+            'database' => $validated['database_name'],
+            'exists' => (bool) $databaseExists,
+        ]);
 
-            $pdo = new \PDO(
-                'mysql:host=' .
-                $validated['database_host'] .
-                ';port=' .
-                $validated['database_port'],
+        if (! $databaseExists) {
 
-                $validated['database_username'],
+            Log::info('Database does not exist. Creating database.');
 
-                $validated['database_password'] ?? '',
-
-                [
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                ]
+            $databaseName = str_replace(
+                '`',
+                '``',
+                $validated['database_name']
             );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Check whether database exists
-            |--------------------------------------------------------------------------
-            */
-
-            $statement = $pdo->prepare(
-                'SELECT SCHEMA_NAME
-                FROM INFORMATION_SCHEMA.SCHEMATA
-                WHERE SCHEMA_NAME = ?'
+            $pdo->exec(
+                "CREATE DATABASE `{$databaseName}`"
             );
 
-            $statement->execute([
-                $validated['database_name'],
-            ]);
-
-            $databaseExists = $statement->fetchColumn();
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Create database if it does not exist
-            |--------------------------------------------------------------------------
-            */
-
-            if (! $databaseExists) {
-
-                $databaseName = str_replace(
-                    '`',
-                    '``',
-                    $validated['database_name']
-                );
-
-                $pdo->exec(
-                    "CREATE DATABASE `{$databaseName}`"
-                );
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Success
-            |--------------------------------------------------------------------------
-            */
-
-            return redirect()
-                ->route('installer.database')
-                ->with(
-                    'database_success',
-                    'Database connection was successful and the database is ready.'
-                )
-                ->with(
-                    'database_tested',
-                    true
-                )
-                ->with(
-                    'database_credentials',
-                    $validated
-                );
-
-        } catch (\Exception $e) {
-
-            Log::error('Database connection failed', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-
-            return redirect()
-                ->route('installer.database')
-                ->with(
-                    'database_error',
-                    'Unable to connect to MySQL or create the database. Please check your database credentials and permissions.'
-                )
-                ->with(
-                    'database_tested',
-                    false
-                )
-                ->with(
-                    'database_credentials',
-                    $validated
-                );
+            Log::info('Database created successfully');
         }
+
+        Log::info('Database test completed successfully');
+
+        return redirect()
+            ->route('installer.database')
+            ->with(
+                'database_success',
+                'Database connection was successful and the database is ready.'
+            )
+            ->with(
+                'database_tested',
+                true
+            )
+            ->with(
+                'database_credentials',
+                $validated
+            );
+
+    } catch (\Throwable $e) {
+
+        Log::error('Database connection failed', [
+            'message' => $e->getMessage(),
+            'exception' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        return redirect()
+            ->route('installer.database')
+            ->with(
+                'database_error',
+                'Unable to connect to MySQL or create the database. Please check your database credentials and permissions.'
+            )
+            ->with(
+                'database_tested',
+                false
+            )
+            ->with(
+                'database_credentials',
+                $validated
+            );
     }
+}
 
     public function configureDatabase(Request $request)
     {
