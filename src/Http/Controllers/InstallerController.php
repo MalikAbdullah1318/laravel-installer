@@ -99,6 +99,7 @@ class InstallerController extends Controller
                 'max:255',
             ],
         ]);
+        dd($validated);
 
         try {
 
