@@ -52,7 +52,10 @@ class InstallerController extends Controller
     public function database()
     {
         return view(
-            'installer::installer.database'
+        'installer::installer.database',
+            [
+                'databaseCredentials' => session('database_credentials', []),
+            ]
         );
     }
 
