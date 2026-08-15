@@ -2,25 +2,16 @@
 
 @section('title', 'Installation - Requirements')
 
+@section('header', 'Server Requirements')
+
+@section(
+    'description',
+    'Let’s make sure your server meets all the requirements before continuing.'
+)
+
 @section('content')
 
-    <div class="installer-header">
-
-        <h1 class="installer-title">
-            Server Requirements
-        </h1>
-
-        <p class="installer-description">
-            Let's make sure your server meets all the requirements
-            before continuing with the installation.
-        </p>
-
-    </div>
-
-
     <div class="installer-body">
-
-        {{-- Progress --}}
 
         <div class="step-indicator">
 
@@ -32,26 +23,22 @@
         </div>
 
 
-        {{-- Overall status --}}
-
         @if($requirementsPassed)
 
-            <div class="all-passed">
+            <div class="alert alert-success">
                 All server requirements have been successfully met.
                 You can continue with the installation.
             </div>
 
         @else
 
-            <div class="has-failed">
+            <div class="alert alert-error">
                 Some server requirements are not satisfied.
                 Please fix the failed requirements before continuing.
             </div>
 
         @endif
 
-
-        {{-- Requirements --}}
 
         <div class="requirements-section">
 
@@ -80,9 +67,7 @@
 
                         <div class="requirement-value">
 
-                            <strong>
-                                Required
-                            </strong>
+                            <strong>Required</strong>
 
                             <br>
 
@@ -93,9 +78,7 @@
 
                         <div class="requirement-value">
 
-                            <strong>
-                                Current
-                            </strong>
+                            <strong>Current</strong>
 
                             <br>
 
@@ -136,6 +119,14 @@
 
 
     <div class="installer-footer">
+
+        <a
+            href="{{ route('installer.welcome') }}"
+            class="btn"
+        >
+            Back
+        </a>
+
 
         @if($requirementsPassed)
 

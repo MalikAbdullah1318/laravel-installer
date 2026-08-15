@@ -2,19 +2,14 @@
 
 @section('title', 'Installation')
 
+@section('header', 'Welcome')
+
+@section(
+    'description',
+    'Let’s get your application installed and ready to use.'
+)
+
 @section('content')
-
-    <div class="installer-header">
-
-        <h1 class="installer-title">
-            Welcome
-        </h1>
-
-        <p class="installer-description">
-            Let's get your application installed and ready to use.
-        </p>
-
-    </div>
 
     <div class="installer-body">
 
@@ -27,11 +22,12 @@
 
         </div>
 
+
         <h2 class="section-title">
             Welcome to the Installation Wizard
         </h2>
 
-        <p style="color: #6b7280; line-height: 1.7;">
+        <p class="section-description">
             This wizard will guide you through the installation
             process. Before we configure your application,
             we'll check your server requirements.
@@ -39,7 +35,10 @@
 
     </div>
 
+
     <div class="installer-footer">
+
+        <div></div>
 
         <a
             href="{{ route('installer.requirements') }}"

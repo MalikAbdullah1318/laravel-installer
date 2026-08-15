@@ -1,33 +1,24 @@
 @extends('installer::installer.layout')
 
-@section('title', 'Installation - Database Setup')
+@section('title', 'Installation - Database Migration')
+
+@section('header', 'Database Migration')
+
+@section(
+    'description',
+    'Create the database tables required by your application.'
+)
 
 @section('content')
 
-    <div class="installer-header">
-
-        <h1 class="installer-title">
-            Database Setup
-        </h1>
-
-        <p class="installer-description">
-            Your database connection has been configured.
-            The next step is to create the required database tables.
-        </p>
-
-    </div>
-
-
     <div class="installer-body">
-
-        {{-- Progress --}}
 
         <div class="step-indicator">
 
             <div class="step active"></div>
             <div class="step active"></div>
             <div class="step active"></div>
-            <div class="step"></div>
+            <div class="step active"></div>
 
         </div>
 
@@ -36,7 +27,7 @@
 
             @if($success)
 
-                <div class="all-passed">
+                <div class="alert alert-success">
 
                     Database tables were created successfully.
 
@@ -44,15 +35,15 @@
 
             @else
 
-                <div class="has-failed">
+                <div class="alert alert-error">
 
                     <strong>
                         Database migration failed.
                     </strong>
 
-                    <p>
+                    <div style="margin-top: 6px;">
                         {{ $output }}
-                    </p>
+                    </div>
 
                 </div>
 
@@ -61,25 +52,21 @@
         @endif
 
 
-        <div class="requirements-section">
+        <h2 class="section-title">
+            Database Migration
+        </h2>
 
-            <h2 class="section-title">
-                Database Migration
-            </h2>
-
-            <p>
-                Click the button below to create the tables
-                required by this application.
-            </p>
+        <p class="section-description">
+            Click the button below to run the application's
+            database migrations.
+        </p>
 
 
-            @if(isset($output))
+        @if(isset($output))
 
-                <pre>{{ $output }}</pre>
+            <div class="migration-output">{{ $output }}</div>
 
-            @endif
-
-        </div>
+        @endif
 
     </div>
 

@@ -2,330 +2,331 @@
 
 @section('title', 'Installation - Database Configuration')
 
+@section('header', 'Database Configuration')
+
+@section(
+    'description',
+    'Enter your database credentials to connect your application to MySQL.'
+)
+
 @section('content')
 
-    <style>
+    <div class="installer-body">
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            margin: 0;
-            padding: 40px;
-        }
+        <div class="step-indicator">
 
-        .container {
-            max-width: 700px;
-            margin: auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 12px 20px;
-            cursor: pointer;
-        }
-
-        .success {
-            padding: 12px;
-            background: #d1fae5;
-            margin-bottom: 20px;
-        }
-
-        .error {
-            padding: 12px;
-            background: #fee2e2;
-            margin-bottom: 20px;
-        }
-
-        .section {
-            margin-top: 30px;
-        }
-
-    </style>
-<div class="container">
-
-    <h1>Database Configuration</h1>
-
-    <p>
-        Enter your database credentials below.
-    </p>
-
-
-    {{-- ========================================================= --}}
-    {{-- DATABASE SUCCESS --}}
-    {{-- ========================================================= --}}
-
-    @if($databaseSuccess)
-
-        <div class="success">
-
-            {{ $databaseSuccess }}
-
-        </div>
-
-    @endif
-
-
-    {{-- ========================================================= --}}
-    {{-- DATABASE ERROR --}}
-    {{-- ========================================================= --}}
-
-    @if($databaseError)
-
-        <div class="error">
-
-            {{ $databaseError }}
-
-        </div>
-
-    @endif
-
-
-    {{-- ========================================================= --}}
-    {{-- TEST DATABASE --}}
-    {{-- ========================================================= --}}
-
-    <h2>
-        Test Database Connection
-    </h2>
-
-
-    <form
-        method="POST"
-        action="{{ route('installer.database.test') }}"
-    >
-
-        @csrf
-
-
-        <div class="form-group">
-
-            <label>
-                Database Host
-            </label>
-
-            <input
-                type="text"
-                name="database_host"
-                value="{{ $databaseCredentials['database_host'] ?? '127.0.0.1' }}"
-                required
-            >
+            <div class="step active"></div>
+            <div class="step active"></div>
+            <div class="step"></div>
+            <div class="step"></div>
 
         </div>
 
 
-        <div class="form-group">
+        {{-- Success --}}
 
-            <label>
-                Database Port
-            </label>
+        @if($databaseSuccess)
 
-            <input
-                type="number"
-                name="database_port"
-                value="{{ $databaseCredentials['database_port'] ?? 3306 }}"
-                required
-            >
+            <div class="alert alert-success">
+                {{ $databaseSuccess }}
+            </div>
 
-        </div>
+        @endif
 
 
-        <div class="form-group">
+        {{-- Error --}}
 
-            <label>
-                Database Name
-            </label>
+        @if($databaseError)
 
-            <input
-                type="text"
-                name="database_name"
-                value="{{ $databaseCredentials['database_name'] ?? '' }}"
-                required
-            >
+            <div class="alert alert-error">
+                {{ $databaseError }}
+            </div>
 
-        </div>
+        @endif
 
 
-        <div class="form-group">
+        <h2 class="section-title">
+            Test Database Connection
+        </h2>
 
-            <label>
-                Database Username
-            </label>
-
-            <input
-                type="text"
-                name="database_username"
-                value="{{ $databaseCredentials['database_username'] ?? '' }}"
-                required
-            >
-
-        </div>
+        <p class="section-description">
+            Enter your MySQL credentials below. The installer will
+            test the connection and create the database if necessary.
+        </p>
 
 
-        <div class="form-group">
-
-            <label>
-                Database Password
-            </label>
-
-            <input
-                type="password"
-                name="database_password"
-                value="{{ $databaseCredentials['database_password'] ?? '' }}"
-            >
-
-        </div>
-
-
-        <button type="submit">
-            Test Connection
-        </button>
-
-    </form>
-
-
-    {{-- ========================================================= --}}
-    {{-- CONFIGURE DATABASE --}}
-    {{-- ========================================================= --}}
-
-
-    @if($databaseTested)
-
-        <hr style="margin: 30px 0;">
-
-        <div class="section">
-
-            <h2>
-                Install Application
-            </h2>
-
-            <p>
-                The database connection has been verified.
-                You can now configure your application.
-            </p>
-
+        <div class="form-section">
 
             <form
                 method="POST"
-                action="{{ route('installer.database.configure') }}"
+                action="{{ route('installer.database.test') }}"
             >
 
                 @csrf
 
 
-                <div class="form-group">
+                <div class="database-grid">
 
-                    <label>
-                        Database Host
-                    </label>
+                    <div class="form-group">
 
-                    <input
-                        type="text"
-                        name="database_host"
-                        value="{{ $databaseCredentials['database_host'] ?? '' }}"
-                        required
-                    >
+                        <label class="form-label">
+                            Database Host
+                        </label>
+
+                        <input
+                            type="text"
+                            name="database_host"
+                            class="form-input"
+                            value="{{ $databaseCredentials['database_host'] ?? '127.0.0.1' }}"
+                            placeholder="127.0.0.1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Database Port
+                        </label>
+
+                        <input
+                            type="number"
+                            name="database_port"
+                            class="form-input"
+                            value="{{ $databaseCredentials['database_port'] ?? 3306 }}"
+                            placeholder="3306"
+                            required
+                        >
+
+                    </div>
 
                 </div>
 
 
                 <div class="form-group">
 
-                    <label>
-                        Database Port
-                    </label>
-
-                    <input
-                        type="number"
-                        name="database_port"
-                        value="{{ $databaseCredentials['database_port'] ?? 3306 }}"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
+                    <label class="form-label">
                         Database Name
                     </label>
 
                     <input
                         type="text"
                         name="database_name"
+                        class="form-input"
                         value="{{ $databaseCredentials['database_name'] ?? '' }}"
+                        placeholder="your_database"
                         required
                     >
 
                 </div>
 
 
-                <div class="form-group">
+                <div class="database-grid">
 
-                    <label>
-                        Database Username
-                    </label>
+                    <div class="form-group">
 
-                    <input
-                        type="text"
-                        name="database_username"
-                        value="{{ $databaseCredentials['database_username'] ?? '' }}"
-                        required
-                    >
+                        <label class="form-label">
+                            Database Username
+                        </label>
+
+                        <input
+                            type="text"
+                            name="database_username"
+                            class="form-input"
+                            value="{{ $databaseCredentials['database_username'] ?? '' }}"
+                            placeholder="root"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Database Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="database_password"
+                            class="form-input"
+                            value="{{ $databaseCredentials['database_password'] ?? '' }}"
+                            placeholder="••••••••"
+                        >
+
+                    </div>
 
                 </div>
 
 
-                <div class="form-group">
-
-                    <label>
-                        Database Password
-                    </label>
-
-                    <input
-                        type="password"
-                        name="database_password"
-                        value="{{ $databaseCredentials['database_password'] ?? '' }}"
-                    >
-
-                </div>
-
-
-                <button type="submit">
-                    Install Application
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Test Connection
                 </button>
 
             </form>
 
         </div>
 
-    @endif
+
+        {{-- =====================================================
+             CONFIGURE APPLICATION
+        ====================================================== --}}
+
+        @if($databaseTested)
+
+            <div class="form-section">
+
+                <div class="alert alert-success">
+
+                    Database connection verified successfully.
+                    You can now configure the application.
+
+                </div>
 
 
-</div>
+                <h2 class="section-title">
+                    Configure Application
+                </h2>
 
-</body>
 
-</html>
+                <p class="section-description">
+                    These credentials will be saved to the application's
+                    environment configuration.
+                </p>
+
+
+                <form
+                    method="POST"
+                    action="{{ route('installer.database.configure') }}"
+                    style="margin-top: 24px;"
+                >
+
+                    @csrf
+
+
+                    <div class="database-grid">
+
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Database Host
+                            </label>
+
+                            <input
+                                type="text"
+                                name="database_host"
+                                class="form-input"
+                                value="{{ $databaseCredentials['database_host'] ?? '' }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Database Port
+                            </label>
+
+                            <input
+                                type="number"
+                                name="database_port"
+                                class="form-input"
+                                value="{{ $databaseCredentials['database_port'] ?? 3306 }}"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Database Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="database_name"
+                            class="form-input"
+                            value="{{ $databaseCredentials['database_name'] ?? '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="database-grid">
+
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Database Username
+                            </label>
+
+                            <input
+                                type="text"
+                                name="database_username"
+                                class="form-input"
+                                value="{{ $databaseCredentials['database_username'] ?? '' }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Database Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="database_password"
+                                class="form-input"
+                                value="{{ $databaseCredentials['database_password'] ?? '' }}"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Configure Application
+                    </button>
+
+                </form>
+
+            </div>
+
+        @endif
+
+    </div>
+
+
+    <div class="installer-footer">
+
+        <a
+            href="{{ route('installer.requirements') }}"
+            class="btn"
+        >
+            Back
+        </a>
+
+    </div>
+
+@endsection
