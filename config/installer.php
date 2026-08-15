@@ -53,6 +53,12 @@ return [
         |
         */
 
+        [
+            'command' => 'storage:link',
+            'parameters' => [],
+        ],
+
+
     ],
 
 ];

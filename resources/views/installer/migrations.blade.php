@@ -3,126 +3,130 @@
 @section('title', 'Installation - Database Setup')
 
 @section('content')
+    <style>
 
-    <div class="installer-header">
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 40px;
+        }
 
-        <h1 class="installer-title">
-            Database Setup
-        </h1>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+        }
 
-        <p class="installer-description">
-            Your database connection has been configured.
-            The next step is to create the required database tables.
-        </p>
+        .success {
+            padding: 20px;
+            background: #d1fae5;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
 
-    </div>
+        .error {
+            padding: 20px;
+            background: #fee2e2;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
 
+        .output {
+            background: #111827;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
 
-    <div class="installer-body">
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #2563eb;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
 
-        {{-- Progress --}}
+        .button:hover {
+            background: #1d4ed8;
+        }
 
-        <div class="step-indicator">
+    </style>
 
-            <div class="step active"></div>
-            <div class="step active"></div>
-            <div class="step active"></div>
-            <div class="step"></div>
+<div class="container">
 
-        </div>
+    @if($success)
 
+        <div class="success">
 
-        @if(isset($success))
-
-            @if($success)
-
-                <div class="all-passed">
-
-                    Database tables were created successfully.
-
-                </div>
-
-            @else
-
-                <div class="has-failed">
-
-                    <strong>
-                        Database migration failed.
-                    </strong>
-
-                    <p>
-                        {{ $output }}
-                    </p>
-
-                </div>
-
-            @endif
-
-        @endif
-
-
-        <div class="requirements-section">
-
-            <h2 class="section-title">
-                Database Migration
-            </h2>
+            <h1>
+                Installation Completed
+            </h1>
 
             <p>
-                Click the button below to create the tables
-                required by this application.
+                Your application has been installed successfully.
             </p>
 
-
-            @if(isset($output))
-
-                <pre>{{ $output }}</pre>
-
-            @endif
+            <p>
+                The database has been configured, migrations
+                have been completed, and the application is ready.
+            </p>
 
         </div>
 
-    </div>
+        @if(!empty($output))
 
+            <h2>
+                Installation Output
+            </h2>
 
-    <div class="installer-footer">
-
-        <a
-            href="{{ route('installer.database') }}"
-            class="btn"
-        >
-            Back
-        </a>
-
-
-        @if(!isset($success) || !$success)
-
-            <form
-                method="POST"
-                action="{{ route('installer.migrations.run') }}"
-            >
-
-                @csrf
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Run Migrations
-                </button>
-
-            </form>
-
-        @else
-
-            <a
-                href="#"
-                class="btn btn-primary"
-            >
-                Continue
-            </a>
+            <div class="output">{{ $output }}</div>
 
         @endif
 
-    </div>
+        <a
+            href="{{ url('/') }}"
+            class="button"
+        >
+            Visit Application
+        </a>
+
+    @else
+
+        <div class="error">
+
+            <h1>
+                Installation Failed
+            </h1>
+
+            <p>
+                Something went wrong during installation.
+            </p>
+
+        </div>
+
+        <h2>
+            Error Details
+        </h2>
+
+        <div class="output">{{ $output }}</div>
+
+        <a
+            href="{{ route('installer.migrations') }}"
+            class="button"
+        >
+            Try Again
+        </a>
+
+    @endif
+
+</div>
 
 @endsection

@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('installer::installer.layout')
 
-<head>
+@section('title', 'Installation - Database Configuration')
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Database Configuration</title>
+@section('content')
 
     <style>
 
@@ -71,12 +63,6 @@
         }
 
     </style>
-
-</head>
-
-
-<body>
-
 <div class="container">
 
     <h1>Database Configuration</h1>
