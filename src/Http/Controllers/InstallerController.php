@@ -52,16 +52,16 @@ class InstallerController extends Controller
     */
 
     public function database(InstallerState $state)
-    {
-        $installerState = $state->get();
+{
+    $installerState = $state->get();
 
-        return view('installer::installer.database', [
-            'databaseTested' => $installerState['database_tested'] ?? false,
-            'databaseSuccess' => $installerState['database_success'] ?? null,
-            'databaseError' => $installerState['database_error'] ?? null,
-            'databaseCredentials' => $installerState['database_credentials'] ?? [],
-        ]);
-    }
+    return view('installer::installer.database', [
+        'databaseTested' => $installerState['database_tested'] ?? false,
+        'databaseSuccess' => $installerState['database_success'] ?? null,
+        'databaseError' => $installerState['database_error'] ?? null,
+        'databaseCredentials' => $installerState['database_credentials'] ?? [],
+    ]);
+}
 
 
     /*
@@ -71,160 +71,160 @@ class InstallerController extends Controller
     */
 
     public function testDatabase(
-        Request $request,
-        InstallerState $state
-    ) {
-        Log::info('Database test method started');
-
-        $validated = $request->validate([
-            'database_host' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'database_port' => [
-                'required',
-                'integer',
-                'between:1,65535',
-            ],
-
-            'database_name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'database_username' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'database_password' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-        ]);
-
-        Log::info('Database validation passed', [
-            'host' => $validated['database_host'],
-            'port' => $validated['database_port'],
-            'database' => $validated['database_name'],
-            'username' => $validated['database_username'],
-        ]);
-
-        try {
-
-            Log::info('Attempting MySQL connection');
-
-            $pdo = new \PDO(
-                'mysql:host=' .
-                $validated['database_host'] .
-                ';port=' .
-                $validated['database_port'],
-
-                $validated['database_username'],
-
-                $validated['database_password'] ?? '',
-
-                [
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                ]
-            );
-
-            Log::info('MySQL connection successful');
-
-            $statement = $pdo->prepare(
-                'SELECT SCHEMA_NAME
-                FROM INFORMATION_SCHEMA.SCHEMATA
-                WHERE SCHEMA_NAME = ?'
-            );
-
-            $statement->execute([
-                $validated['database_name'],
-            ]);
-
-            $databaseExists = $statement->fetchColumn();
-
-            Log::info('Database existence checked', [
-                'database' => $validated['database_name'],
-                'exists' => (bool) $databaseExists,
-            ]);
-
-            if (! $databaseExists) {
-
-                Log::info('Database does not exist. Creating database.');
-
-                $databaseName = str_replace(
-                    '`',
-                    '``',
-                    $validated['database_name']
-                );
-
-                $pdo->exec(
-                    "CREATE DATABASE `{$databaseName}`"
-                );
-
-                Log::info('Database created successfully');
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Save Installer State
-            |--------------------------------------------------------------------------
-            */
-
-            $state->put([
-                'database_tested' => true,
-
-                'database_success' =>
-                    'Database connection was successful and the database is ready.',
-
-                'database_error' => null,
-
-                'database_credentials' => $validated,
-            ]);
-
-            Log::info('Database test completed successfully');
-
-            return redirect()->route('installer.database');
-
-        } catch (\Throwable $e) {
-
-            Log::error('Database connection failed', [
-                'message' => $e->getMessage(),
-                'exception' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Save Error State
-            |--------------------------------------------------------------------------
-            */
-
-            $state->put([
-                'database_tested' => false,
-
-                'database_success' => null,
-
-                'database_error' =>
-                    'Unable to connect to MySQL or create the database. Please check your database credentials and permissions.',
-
-                'database_credentials' => $validated,
-            ]);
-
-            return redirect()->route('installer.database');
-        }
-    }
-
-    public function configureDatabase(
     Request $request,
     InstallerState $state
+) {
+    Log::info('Database test method started');
+
+    $validated = $request->validate([
+        'database_host' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'database_port' => [
+            'required',
+            'integer',
+            'between:1,65535',
+        ],
+
+        'database_name' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'database_username' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'database_password' => [
+            'nullable',
+            'string',
+            'max:255',
+        ],
+    ]);
+
+    Log::info('Database validation passed', [
+        'host' => $validated['database_host'],
+        'port' => $validated['database_port'],
+        'database' => $validated['database_name'],
+        'username' => $validated['database_username'],
+    ]);
+
+    try {
+
+        Log::info('Attempting MySQL connection');
+
+        $pdo = new \PDO(
+            'mysql:host=' .
+            $validated['database_host'] .
+            ';port=' .
+            $validated['database_port'],
+
+            $validated['database_username'],
+
+            $validated['database_password'] ?? '',
+
+            [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            ]
+        );
+
+        Log::info('MySQL connection successful');
+
+        $statement = $pdo->prepare(
+            'SELECT SCHEMA_NAME
+             FROM INFORMATION_SCHEMA.SCHEMATA
+             WHERE SCHEMA_NAME = ?'
+        );
+
+        $statement->execute([
+            $validated['database_name'],
+        ]);
+
+        $databaseExists = $statement->fetchColumn();
+
+        Log::info('Database existence checked', [
+            'database' => $validated['database_name'],
+            'exists' => (bool) $databaseExists,
+        ]);
+
+        if (! $databaseExists) {
+
+            Log::info('Database does not exist. Creating database.');
+
+            $databaseName = str_replace(
+                '`',
+                '``',
+                $validated['database_name']
+            );
+
+            $pdo->exec(
+                "CREATE DATABASE `{$databaseName}`"
+            );
+
+            Log::info('Database created successfully');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Save Installer State
+        |--------------------------------------------------------------------------
+        */
+
+        $state->put([
+            'database_tested' => true,
+
+            'database_success' =>
+                'Database connection was successful and the database is ready.',
+
+            'database_error' => null,
+
+            'database_credentials' => $validated,
+        ]);
+
+        Log::info('Database test completed successfully');
+
+        return redirect()->route('installer.database');
+
+    } catch (\Throwable $e) {
+
+        Log::error('Database connection failed', [
+            'message' => $e->getMessage(),
+            'exception' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Save Error State
+        |--------------------------------------------------------------------------
+        */
+
+        $state->put([
+            'database_tested' => false,
+
+            'database_success' => null,
+
+            'database_error' =>
+                'Unable to connect to MySQL or create the database. Please check your database credentials and permissions.',
+
+            'database_credentials' => $validated,
+        ]);
+
+        return redirect()->route('installer.database');
+    }
+}
+
+    public function configureDatabase(
+        Request $request,
+        InstallerState $state
     ) {
         $validated = $request->validate([
             'database_host' => [
@@ -382,18 +382,12 @@ class InstallerController extends Controller
 
             if (file_exists($seeder)) {
 
-                $exitCode = Artisan::call('db:seed', [
+                Artisan::call('db:seed', [
                     '--force' => true,
                 ]);
 
                 $output .= PHP_EOL;
                 $output .= Artisan::output();
-
-                if ($exitCode !== 0) {
-                    throw new \RuntimeException(
-                        'Database seeding failed.'
-                    );
-                }
             }
 
 
@@ -460,7 +454,7 @@ class InstallerController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Show Completion Page
+            | Installation Successful
             |--------------------------------------------------------------------------
             */
 
