@@ -222,99 +222,129 @@ class InstallerController extends Controller
     }
 }
 
-    public function configureDatabase(Request $request)
-    {
-        $validated = $request->validate([
-            'database_host' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+    public function configureDatabase(
+    Request $request,
+    InstallerState $state
+) {
+    $validated = $request->validate([
+        'database_host' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-            'database_port' => [
-                'required',
-                'integer',
-                'between:1,65535',
-            ],
+        'database_port' => [
+            'required',
+            'integer',
+            'between:1,65535',
+        ],
 
-            'database_name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+        'database_name' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-            'database_username' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+        'database_username' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-            'database_password' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
+        'database_password' => [
+            'nullable',
+            'string',
+            'max:255',
+        ],
+    ]);
+
+    try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create .env
+        |--------------------------------------------------------------------------
+        */
+
+        $this->environmentManager->createFromExample();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Configure Database
+        |--------------------------------------------------------------------------
+        */
+
+        $this->environmentManager->setMany([
+            'DB_CONNECTION' => 'mysql',
+            'DB_HOST' => $validated['database_host'],
+            'DB_PORT' => $validated['database_port'],
+            'DB_DATABASE' => $validated['database_name'],
+            'DB_USERNAME' => $validated['database_username'],
+            'DB_PASSWORD' => $validated['database_password'] ?? '',
         ]);
 
-        try {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Create .env
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | Generate Application Key
+        |--------------------------------------------------------------------------
+        */
 
-            $this->environmentManager->createFromExample();
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Configure database
-            |--------------------------------------------------------------------------
-            */
-
-            $this->environmentManager->setMany([
-                'DB_CONNECTION' => 'mysql',
-                'DB_HOST' => $validated['database_host'],
-                'DB_PORT' => $validated['database_port'],
-                'DB_DATABASE' => $validated['database_name'],
-                'DB_USERNAME' => $validated['database_username'],
-                'DB_PASSWORD' => $validated['database_password'] ?? '',
-            ]);
+        Artisan::call('key:generate', [
+            '--force' => true,
+        ]);
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Generate APP_KEY
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | Clear Configuration Cache
+        |--------------------------------------------------------------------------
+        */
 
-            Artisan::call('key:generate', [
-                '--force' => true,
-            ]);
+        Artisan::call('config:clear');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Clear configuration cache
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | Save Installer State
+        |--------------------------------------------------------------------------
+        */
 
-            Artisan::call('config:clear');
+        $state->put([
+            'database_tested' => true,
+            'database_configured' => true,
+            'database_credentials' => $validated,
+        ]);
 
 
-            return redirect()->route('installer.migrations');
+        /*
+        |--------------------------------------------------------------------------
+        | Continue To Migrations
+        |--------------------------------------------------------------------------
+        */
 
-        } catch (\Throwable $e) {
+        return redirect()->route(
+            'installer.migrations'
+        );
 
-            return back()
-                ->withInput()
-                ->with(
-                    'environment_error',
-                    $e->getMessage()
-                );
-        }
+    } catch (\Throwable $e) {
+
+        Log::error('Database configuration failed', [
+            'message' => $e->getMessage(),
+            'exception' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+
+        return back()
+            ->withInput()
+            ->with(
+                'environment_error',
+                $e->getMessage()
+            );
     }
+}
 
     public function migrations()
     {
@@ -324,32 +354,128 @@ class InstallerController extends Controller
     }
 
     public function runMigrations()
-    {
-        try {
+{
+    try {
 
-            Artisan::call('migrate', [
+        /*
+        |--------------------------------------------------------------------------
+        | Run Migrations
+        |--------------------------------------------------------------------------
+        */
+
+        Artisan::call('migrate', [
+            '--force' => true,
+        ]);
+
+        $output = Artisan::output();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Run Database Seeder
+        |--------------------------------------------------------------------------
+        */
+
+        $seeder = base_path(
+            'database/seeders/DatabaseSeeder.php'
+        );
+
+        if (file_exists($seeder)) {
+
+            Artisan::call('db:seed', [
                 '--force' => true,
             ]);
 
-            $output = Artisan::output();
-
-            return view(
-                'installer::installer.migrations',
-                [
-                    'success' => true,
-                    'output' => $output,
-                ]
-            );
-
-        } catch (\Throwable $e) {
-
-            return view(
-                'installer::installer.migrations',
-                [
-                    'success' => false,
-                    'output' => $e->getMessage(),
-                ]
-            );
+            $output .= PHP_EOL;
+            $output .= Artisan::output();
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Run Additional Commands
+        |--------------------------------------------------------------------------
+        */
+
+        $commands = config(
+            'installer.post_install_commands',
+            []
+        );
+
+        foreach ($commands as $command) {
+
+            if (! isset($command['command'])) {
+                continue;
+            }
+
+            Artisan::call(
+                $command['command'],
+                $command['parameters'] ?? []
+            );
+
+            $output .= PHP_EOL;
+            $output .= Artisan::output();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mark Installation As Complete
+        |--------------------------------------------------------------------------
+        */
+
+        $installer = app(
+            \MalikAbdullah1318\LaravelInstaller\Installer::class
+        );
+
+        $installer->markAsInstalled(
+            config('installer.version')
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Remove Temporary Installer State
+        |--------------------------------------------------------------------------
+        */
+
+        $state = app(
+            \MalikAbdullah1318\LaravelInstaller\InstallerState::class
+        );
+
+        $state->forget();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Installation Successful
+        |--------------------------------------------------------------------------
+        */
+
+        return view(
+            'installer::installer.migrations',
+            [
+                'success' => true,
+                'output' => $output,
+            ]
+        );
+
+    } catch (\Throwable $e) {
+
+        Log::error('Installation failed', [
+            'message' => $e->getMessage(),
+            'exception' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+
+        return view(
+            'installer::installer.migrations',
+            [
+                'success' => false,
+                'output' => $e->getMessage(),
+            ]
+        );
     }
+}
 }

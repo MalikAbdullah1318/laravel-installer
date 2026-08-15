@@ -6,10 +6,34 @@ use RuntimeException;
 
 class Installer
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Check Installation Status
+    |--------------------------------------------------------------------------
+    */
+
     public function isInstalled(): bool
     {
-        return file_exists($this->lockFile());
+        /*
+        |--------------------------------------------------------------------------
+        | Application must have BOTH:
+        |
+        | 1. .env file
+        | 2. Installer lock file
+        |
+        |--------------------------------------------------------------------------
+        */
+
+        return file_exists(base_path('.env'))
+            && file_exists($this->lockFile());
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mark Application As Installed
+    |--------------------------------------------------------------------------
+    */
 
     public function markAsInstalled(?string $version = null): void
     {
@@ -48,6 +72,13 @@ class Installer
         }
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Installed Version
+    |--------------------------------------------------------------------------
+    */
+
     public function version(): ?string
     {
         $lockFile = $this->lockFile();
@@ -63,6 +94,13 @@ class Installer
 
         return $data['version'] ?? null;
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get Lock File
+    |--------------------------------------------------------------------------
+    */
 
     protected function lockFile(): string
     {

@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use MalikAbdullah1318\LaravelInstaller\Http\Middleware\InstallerNotInstalled;
 use MalikAbdullah1318\LaravelInstaller\Environment\EnvironmentManager;
 use MalikAbdullah1318\LaravelInstaller\InstallerState;
+use MalikAbdullah1318\LaravelInstaller\Http\Middleware\RedirectToInstaller;
 
 class InstallerServiceProvider extends ServiceProvider
 {
@@ -49,6 +50,11 @@ class InstallerServiceProvider extends ServiceProvider
         Route::aliasMiddleware(
             'installer.not.installed',
             InstallerNotInstalled::class
+        );
+
+        $this->app['router']->pushMiddlewareToGroup(
+            'web',
+            RedirectToInstaller::class
         );
 
         $this->loadRoutesFrom(
