@@ -37,9 +37,21 @@ class RedirectToInstaller
                 return $next($request);
             }
 
-            return redirect()->route(
-                'installer.welcome'
-            );
+            /*
+            |--------------------------------------------------------------------------
+            | Only redirect browser GET/HEAD requests
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $request->isMethod('GET') ||
+                $request->isMethod('HEAD')
+            ) {
+                return redirect()->route(
+                    'installer.welcome'
+                );
+            }
+
         }
 
         return $next($request);

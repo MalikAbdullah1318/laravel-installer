@@ -52,7 +52,6 @@ class InstallerServiceProvider extends ServiceProvider
         );
 
         $this->app['router']->pushMiddlewareToGroup(
-            'web',
             RedirectToInstaller::class
         );
 
