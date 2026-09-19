@@ -33,6 +33,21 @@ class EnvironmentManager
         }
     }
 
+    public function generateKey(): void
+{
+    $this->createFromExample();
+
+    $exitCode = \Artisan::call('key:generate', [
+        '--force' => true,
+    ]);
+
+    if ($exitCode !== 0) {
+        throw new RuntimeException(
+            'Unable to generate the application key.'
+        );
+    }
+}
+
     public function set(string $key, string $value): void
     {
         $this->createFromExample();

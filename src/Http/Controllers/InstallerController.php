@@ -268,6 +268,8 @@ class InstallerController extends Controller
 
             $this->environmentManager->createFromExample();
 
+            $this->environmentManager->generateKey();
+
 
             /*
             |--------------------------------------------------------------------------
